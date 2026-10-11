@@ -1,13 +1,4 @@
 .DS_Store
-# Wird von XcodeGen aus project.yml erzeugt
-*.xcodeproj
-xcuserdata/
-DerivedData/
-.build/
-.swiftpm/
-*.xcworkspace
-!*.xcodeproj/project.xcworkspace
-
 # Web-App
 node_modules/
 dist/

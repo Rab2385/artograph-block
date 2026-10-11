@@ -1,20 +1,25 @@
 # Kartograph-Block
 
-iPad-App (SwiftUI, iPadOS 17+) als digitaler Ersatz für den Eintrageblock von
-**„Der Kartograph" / „Die Kartographin"** (Pegasus Spiele).
+Web-App für das iPad als digitaler Ersatz für den Eintrageblock von
+**„Der Kartograph“ / „Die Kartographin“** (Pegasus Spiele).
 Erkundungskarten, Jahreszeiten und Monster werden weiter mit den echten Karten
 am Tisch gespielt; die App ersetzt nur das Blatt Papier. Ein iPad entspricht einem
 Spieler. Es gibt keinen Server.
 
+**Zur App:** https://rab2385.github.io/artograph-block/
+
 ## Worum es geht
 
-Ein digitaler Eintrageblock für „Der Kartograph“: Jeder Spieler trägt seine
-Karte auf dem iPad ein, statt mit Buntstift auf Papier. Die App rechnet die
-Wertung jeder Jahreszeit selbst aus (Dekrete, Gold, Monster) und lässt sich
-jederzeit rückgängig machen. Geplant ist eine Web-App im Stil des Spielblocks,
-die auf jedem iPad im Browser läuft (siehe Issues).
+Jeder Spieler trägt seine Karte auf dem iPad ein, statt mit Buntstift auf Papier.
+Die App rechnet die Wertung jeder Jahreszeit selbst aus (Dekrete, Gold, Monster)
+und lässt sich jederzeit rückgängig machen. Bei Monster-Karten wird das iPad wie
+ein Blatt Papier an den Nachbarn weitergereicht.
 
-## So soll es aussehen
+**Auf dem iPad installieren:** Seite in Safari öffnen → Teilen → „Zum Home-Bildschirm“.
+Danach startet die App im Vollbild und funktioniert auch ohne Internet. Den Spielstand
+speichert Safari nur dauerhaft, wenn die App auf dem Home-Bildschirm liegt.
+
+## So sieht es aus
 
 Entwürfe im Kartograph-Stil, Quelle in [`docs/mockups/`](docs/mockups/).
 
@@ -33,80 +38,63 @@ Entwürfe im Kartograph-Stil, Quelle in [`docs/mockups/`](docs/mockups/).
   <img src="docs/mockups/score.jpg" alt="Wertung" width="58%">
 </p>
 
-**Gold für eingekreiste Berge** wird automatisch erkannt:
+**Gold für eingekreiste Berge** soll automatisch erkannt werden (#8):
 
 ![Gold für eingekreisten Berg](docs/mockups/gold.jpg)
 
 ## Loslegen
 
-```bash
-brew install xcodegen
-xcodegen generate          # erzeugt KartographBlock.xcodeproj aus project.yml
-open KartographBlock.xcodeproj
-```
-
-Tests der Wertungslogik:
-
-```bash
-cd KartographCore && swift test     # oder in Xcode: Cmd+U
-```
-
-Die GitHub-Action `.github/workflows/ci.yml` führt bei jedem Push die Tests aus
-und baut die App für den iOS-Simulator.
-
-### Web-App (im Aufbau, siehe #14)
-
-Spiellogik in `src/core/`, Oberfläche in `src/ui/` (Karte als SVG, Kompass zur Geländewahl).
-Jeder Push auf `main` veröffentlicht die App unter
-**https://rab2385.github.io/artograph-block/** (`.github/workflows/pages.yml`).
-
-**Auf dem iPad installieren:** Seite in Safari öffnen → Teilen → „Zum Home-Bildschirm“.
-Danach startet die App im Vollbild und funktioniert auch ohne Internet. Den Spielstand
-speichert Safari nur dauerhaft, wenn die App auf dem Home-Bildschirm liegt.
+Voraussetzung: Node.js 22.
 
 ```bash
 npm install
-npm test          # Vitest
-npm run dev       # lokaler Server
+npm run dev       # lokaler Server mit automatischem Neuladen
+npm test          # Unit-Tests (Vitest)
 npm run build     # Typprüfung + Build nach dist/
+npm run preview   # den fertigen Build lokal ansehen (inklusive Offline-Betrieb)
 ```
+
+Die GitHub-Actions:
+
+- `.github/workflows/ci.yml` testet und baut bei jedem Push und Pull Request.
+- `.github/workflows/pages.yml` veröffentlicht bei jedem Push auf `main` auf GitHub Pages.
 
 ## Projektstruktur
 
 ```
-project.yml                     XcodeGen-Beschreibung des App-Targets
-KartographCore/                 Swift Package: reine Spiellogik, ohne UI, testbar
-  Sources/KartographCore/
-    Model/
-      Terrain.swift             Geländearten, vorgedruckte Felder, Cell
-      Coordinate.swift          (row, column) + Nachbarn
-      MapLayout.swift           Berg-/Ruinen-/Ödland-Positionen je Blockseite
-      MapGrid.swift             11×11 Raster, Bemalbarkeit, paint/erase
-      Season.swift              Dekrete A–D, Jahreszeiten → Dekrete
-      GameState.swift           kompletter Spielstand (Codable)
-      UndoHistory.swift         mehrstufiges Undo über Schnappschüsse
-      GridGeometry.swift        Punkt ↔ Feld, Einrasten von Strichen
-    Scoring/
-      ScoringCard.swift         Protokoll für Wertungskarten
-      ScoringCardID.swift       alle 16 Karten (stabile IDs)
-      ScoringCardCatalog.swift  Zuordnung ID → Regel-Objekt
-      ScoringEngine.swift       Jahreszeitenwertung, Monster-Minuspunkte
-      Cards/
-        SentinelWood.swift      ✅ 1 Punkt je Waldfeld am Rand
-        PlaceholderCard.swift   ⚠️ Platzhalter für die übrigen 15 Karten
-    Persistence/GameStore.swift JSON-Speicherung im Application-Support-Ordner
-  Tests/KartographCoreTests/    Unit-Tests (Wertung, Raster, Undo, Geometrie)
-App/                            SwiftUI-App
-  KartographApp.swift
-  ViewModels/GameViewModel.swift   Undo, Autospeichern, Ring-Menü-Zustand
-  Views/
-    GameScreen.swift            Layout: Werkzeuge links, Wertung oben, Raster Mitte
-    GridBoardView.swift         Raster zeichnen + Tippen/Freihand-Eingabe
-    RadialMenu.swift            Ring-Menü mit den Geländearten
-    ToolbarView.swift           Zeichnen/Radierer, Zurück, Gold, Werten, Neu
-    ScoreHeaderView.swift       Wertungsleiste
-    ScoreSheet.swift            Übersicht pro Jahreszeit + Karten
-    SetupView.swift             Blockseite + Wertungskarten A–D wählen
+index.html                      Einstieg (Meta-Tags für den Home-Bildschirm)
+src/
+  main.ts                       startet die App, registriert den Service Worker
+  core/                         reine Spiellogik, ohne Oberfläche, vollständig getestet
+    terrain.ts                  Geländearten, vorgedruckte Felder, Cell
+    coordinate.ts               (row, column) + Nachbarn
+    mapLayout.ts                Berg-/Ruinen-/Ödland-Positionen je Blockseite
+    mapGrid.ts                  11×11 Raster, Bemalbarkeit, paint/erase
+    season.ts                   Dekrete A–D, Jahreszeiten → Dekrete, Zeitlimits
+    gameState.ts                kompletter Spielstand
+    gameStore.ts                Speichern in localStorage
+    undoHistory.ts              mehrstufiges Undo über Schnappschüsse
+    gridGeometry.ts             Punkt ↔ Feld, Einrasten von Strichen
+    scoring/
+      cardIds.ts                alle 16 Karten (stabile IDs, Namen, Kategorien)
+      scoringCard.ts            gemeinsame Form aller Wertungskarten
+      catalog.ts                Zuordnung ID → Regel-Objekt
+      engine.ts                 Jahreszeitenwertung, Monster-Minuspunkte
+      cards/
+        sentinelWood.ts         ✅ 1 Punkt je Waldfeld am Rand
+        placeholder.ts          ⚠️ Platzhalter für die übrigen 15 Karten
+  ui/                           Oberfläche ohne Framework
+    app.ts                      Bildschirmaufbau, Werkzeuge, Jahreszeiten, Dialoge
+    board.ts                    Karte als SVG, Tippen und Freihand-Striche
+    compass.ts                  Kompass zur Geländewahl und seine Platzierung
+    controller.ts               Spielzustand, Undo, Autospeichern
+    icons.ts                    Tintensymbole und Buntstift-Schraffur
+    styles.css                  Gestaltung, Quer- und Hochformat
+    fonts/                      IM Fell English SC und Alegreya (SIL OFL)
+build/serviceWorker.ts          erzeugt beim Build sw.js für den Offline-Betrieb
+public/                         Manifest, App-Symbole, Favicon
+design/app-icon.svg             Quelle des App-Symbols
+docs/mockups/                   Entwürfe (HTML-Quelle und Bilder)
 ```
 
 ## Datenmodell
@@ -115,50 +103,44 @@ App/                            SwiftUI-App
 |---|---|
 | `Terrain` | `forest`, `village`, `water`, `farm`, `monster` |
 | `PrintedFeature` | `free`, `mountain`, `ruins`, `wasteland` (vorgedruckt, unveränderlich) |
-| `Cell` | `printed` + optional `terrain` |
+| `Cell` | `printed` + `terrain` (oder `null`) |
 | `MapLayout` | Konfiguration einer Blockseite: Größe, Berge, Ruinen, Ödland |
 | `MapGrid` | `size` × `size` Zellen; `isPaintable`, `isEmpty`, `paint`, `erase` |
 | `Decree` / `Season` | A–D; Frühling A+B, Sommer B+C, Herbst C+D, Winter D+A |
 | `DecreeAssignment` | welche Wertungskarte auf welchem Dekret liegt |
-| `ScoringCard` | Protokoll: `id`, `category`, `ruleText`, `isImplemented`, `score(_ grid:) -> Int` |
-| `SeasonScore` | Punkte beider Dekrete, Gold, Monster-Minuspunkte, Summe |
-| `GameState` | Raster, Dekrete, Gold, abgeschlossene Jahreszeiten (Codable) |
+| `ScoringCard` | `id`, `category`, `ruleText`, `isImplemented`, `score(grid)` |
+| `SeasonScore` | Punkte beider Dekrete, Gold, Monster-Minuspunkte |
+| `GameState` | Raster, Dekrete, Gold, abgeschlossene Jahreszeiten |
 
-Alles im Kern sind **Werttypen**. Undo heißt deshalb: den vorherigen `GameState`
-wiederherstellen. Speichern heißt: JSON schreiben.
+Alles im Kern sind **unveränderliche Daten** mit reinen Funktionen. Undo heißt
+deshalb: den vorherigen `GameState` wiederherstellen. Speichern heißt: JSON schreiben.
 
 ## Bedienung
 
-* **Antippen** eines Feldes markiert es, und um das Feld erscheint das Ring-Menü.
+* **Antippen** eines Feldes markiert es, und neben der Auswahl erscheint der Kompass.
 * **Ziehen** mit Stift oder Finger über mehrere Felder markiert alle überstrichenen
-  Felder (eingerastet). Nach dem Loslassen erscheint das Ring-Menü, und die gewählte
+  Felder (eingerastet). Nach dem Loslassen erscheint der Kompass, und die gewählte
   Geländeart füllt die ganze Form.
-* Ein Tipp außerhalb des Menüs oder auf ✕ bricht ab.
+* Ein Tipp neben den Kompass oder auf ✕ bricht ab.
 * Der **Radierer** ist ein eigener Modus: Tippen oder Ziehen leert die Felder.
 * **Zurück** macht die letzten Schritte rückgängig (auch Gold und Jahreszeitenwertung).
+* **Gold** wird über das ganze Spiel gesammelt; jede Jahreszeit wertet das gesamte Gold.
 * **Werten** schließt die laufende Jahreszeit ab. Die App rechnet aus dem Raster
   Dekret 1 + Dekret 2 + Gold + Monster-Minuspunkte.
 
 ## Offene Punkte
 
-* **15 Wertungskarten sind Platzhalter** (liefern 0 Punkte, in der App markiert).
-  Zum Umsetzen: Typ nach Muster `SentinelWood` anlegen, in `ScoringCardCatalog`
+Siehe die [Issues](https://github.com/Rab2385/artograph-block/issues):
+
+* **15 Wertungskarten sind Platzhalter** (#1–#4): liefern 0 Punkte, in der App markiert.
+  Zum Umsetzen: Datei nach dem Muster von `sentinelWood.ts` anlegen, in `catalog.ts`
   eintragen, Tests ergänzen.
-* **Kartennamen:** Im Moment stehen die englischen Namen in `ScoringCardID.displayName`.
-  Die deutschen Namen von Pegasus lassen sich dort eintragen; gespeicherte Spielstände
-  bleiben gültig.
-* **Positionen der Blockseiten:** Die Vorderseite stammt aus dem Gedächtnis und
-  sollte mit dem echten Block abgeglichen werden. Die Ödland-Rückseite ist ein reiner
-  Platzhalter. Beides steht in `MapLayout.swift`.
-* **Ruinen** sind wie im Original bemalbar. Mit `MapLayout.ruinsArePaintable = false`
+* **Deutsche Kartennamen und eigene Kurzregeln** (#5): in `cardIds.ts` und den Karten.
+  Gespeicherte Spielstände bleiben gültig.
+* **Positionen der Blockseiten** (#6, #7): Die Vorderseite stammt aus dem Gedächtnis,
+  die Ödland-Rückseite ist ein Platzhalter. Beides steht in `mapLayout.ts`.
+* **Gold für eingekreiste Berge** automatisch zählen (#8).
+* **Ruinen** sind wie im Original bemalbar. Mit `ruinsArePaintable: false` im Layout
   lassen sie sich sperren.
-* **Gold** ist ein manueller Zähler. Gold für eingekreiste Berge wird nicht automatisch
-  erkannt.
 
-## Später: Mehrspieler
-
-Der Kern hängt nicht von der UI ab. `GameState` ist `Codable` und `Sendable`, und
-alle Änderungen laufen zentral über `GameViewModel.apply`. Für eine spätere
-Verlinkung lassen sich dort Aktionen oder Schnappschüsse abgreifen und übertragen,
-zum Beispiel per MultipeerConnectivity oder SharePlay. Ein `GameState` pro Spieler
-plus gemeinsame Dekrete reicht als Modell.
+Die frühere SwiftUI-Version steht in der Git-Historie (bis Commit `abd107b`).
