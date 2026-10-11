@@ -56,7 +56,8 @@ und baut die App für den iOS-Simulator.
 
 ### Web-App (im Aufbau, siehe #14)
 
-Die Spiellogik ist nach TypeScript portiert (`src/core/`). Die Oberfläche folgt.
+Spiellogik in `src/core/`, Oberfläche in `src/ui/` (Karte als SVG, Kompass zur Geländewahl).
+Offline-Betrieb und Veröffentlichung auf GitHub Pages folgen.
 
 ```bash
 npm install
