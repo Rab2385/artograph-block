@@ -6,6 +6,37 @@ Erkundungskarten, Jahreszeiten und Monster werden weiter mit den echten Karten
 am Tisch gespielt; die App ersetzt nur das Blatt Papier. Ein iPad entspricht einem
 Spieler. Es gibt keinen Server.
 
+## Worum es geht
+
+Ein digitaler Eintrageblock für „Der Kartograph“: Jeder Spieler trägt seine
+Karte auf dem iPad ein, statt mit Buntstift auf Papier. Die App rechnet die
+Wertung jeder Jahreszeit selbst aus (Dekrete, Gold, Monster) und lässt sich
+jederzeit rückgängig machen. Geplant ist eine Web-App im Stil des Spielblocks,
+die auf jedem iPad im Browser läuft (siehe Issues).
+
+## So soll es aussehen
+
+Entwürfe im Kartograph-Stil, Quelle in [`docs/mockups/`](docs/mockups/).
+
+**Spielbildschirm (Querformat)** mit geöffnetem Kompass zur Geländewahl:
+
+![Spielbildschirm Querformat](docs/mockups/landscape.jpg)
+
+**Formen eintragen:** Felder ziehen, Gelände im Kompass wählen, fertig.
+
+![Ablauf Auswahlring](docs/mockups/ring.jpg)
+
+**Hochformat** und **Wertung:**
+
+<p>
+  <img src="docs/mockups/portrait.jpg" alt="Spielbildschirm Hochformat" width="38%">
+  <img src="docs/mockups/score.jpg" alt="Wertung" width="58%">
+</p>
+
+**Gold für eingekreiste Berge** wird automatisch erkannt:
+
+![Gold für eingekreisten Berg](docs/mockups/gold.jpg)
+
 ## Loslegen
 
 ```bash
