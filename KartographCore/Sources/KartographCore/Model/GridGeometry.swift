@@ -1,4 +1,9 @@
 import Foundation
+#if canImport(CoreGraphics)
+// `CGRect(x:y:width:height:)` kommt aus CoreGraphics; Foundation allein reicht
+// mit neueren Xcode-SDKs nicht mehr.
+import CoreGraphics
+#endif
 
 /// Umrechnung zwischen Bildschirmpunkten und Rasterfeldern.
 /// Liegt im Kern (statt in der View), damit das Einrasten testbar ist.

@@ -20,41 +20,11 @@ struct RadialMenu: View {
                 .shadow(color: .black.opacity(0.25), radius: 10, y: 4)
 
             ForEach(Array(Terrain.allCases.enumerated()), id: \.element) { index, terrain in
-                let angle = Double(index) / Double(Terrain.allCases.count) * 2 * .pi - .pi / 2
-                Button {
-                    onSelect(terrain)
-                } label: {
-                    VStack(spacing: 2) {
-                        Image(systemName: terrain.symbolName)
-                            .font(.title2)
-                        Text(terrain.displayName)
-                            .font(.caption2.bold())
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                    }
-                    .foregroundStyle(.white)
-                    .frame(width: Self.buttonSize, height: Self.buttonSize)
-                    .background(Circle().fill(terrain.color))
-                    .overlay(Circle().stroke(.white, lineWidth: 2))
-                }
-                .buttonStyle(.plain)
-                .offset(x: CGFloat(cos(angle)) * Self.radius, y: CGFloat(sin(angle)) * Self.radius)
-                .accessibilityLabel(terrain.displayName)
+                terrainButton(terrain)
+                    .offset(Self.offset(forIndex: index))
             }
 
-            Button(action: onCancel) {
-                VStack(spacing: 0) {
-                    Image(systemName: "xmark")
-                        .font(.headline)
-                    Text(cellCount == 1 ? "1 Feld" : "\(cellCount) Felder")
-                        .font(.caption2)
-                }
-                .foregroundStyle(.secondary)
-                .frame(width: 56, height: 56)
-                .background(Circle().fill(Color(.systemBackground)))
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Abbrechen")
+            cancelButton
         }
         .frame(width: Self.outerRadius * 2, height: Self.outerRadius * 2)
         .scaleEffect(appeared ? 1 : 0.6)
@@ -62,5 +32,49 @@ struct RadialMenu: View {
         .onAppear {
             withAnimation(.spring(duration: 0.2)) { appeared = true }
         }
+    }
+
+    /// Position eines Knopfes auf dem Ring; der erste sitzt oben.
+    private static func offset(forIndex index: Int) -> CGSize {
+        let count: Double = Double(Terrain.allCases.count)
+        let angle: Double = Double(index) / count * 2 * Double.pi - Double.pi / 2
+        return CGSize(width: CGFloat(cos(angle)) * radius, height: CGFloat(sin(angle)) * radius)
+    }
+
+    private func terrainButton(_ terrain: Terrain) -> some View {
+        Button {
+            onSelect(terrain)
+        } label: {
+            VStack(spacing: 2) {
+                Image(systemName: terrain.symbolName)
+                    .font(.title2)
+                Text(terrain.displayName)
+                    .font(.caption2.bold())
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            .foregroundStyle(.white)
+            .frame(width: Self.buttonSize, height: Self.buttonSize)
+            .background(Circle().fill(terrain.color))
+            .overlay(Circle().stroke(.white, lineWidth: 2))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(terrain.displayName)
+    }
+
+    private var cancelButton: some View {
+        Button(action: onCancel) {
+            VStack(spacing: 0) {
+                Image(systemName: "xmark")
+                    .font(.headline)
+                Text(cellCount == 1 ? "1 Feld" : "\(cellCount) Felder")
+                    .font(.caption2)
+            }
+            .foregroundStyle(.secondary)
+            .frame(width: 56, height: 56)
+            .background(Circle().fill(Color(.systemBackground)))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Abbrechen")
     }
 }
