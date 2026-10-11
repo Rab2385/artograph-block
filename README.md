@@ -54,6 +54,17 @@ cd KartographCore && swift test     # oder in Xcode: Cmd+U
 Die GitHub-Action `.github/workflows/ci.yml` führt bei jedem Push die Tests aus
 und baut die App für den iOS-Simulator.
 
+### Web-App (im Aufbau, siehe #14)
+
+Die Spiellogik ist nach TypeScript portiert (`src/core/`). Die Oberfläche folgt.
+
+```bash
+npm install
+npm test          # Vitest
+npm run dev       # lokaler Server
+npm run build     # Typprüfung + Build nach dist/
+```
+
 ## Projektstruktur
 
 ```

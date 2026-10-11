@@ -7,3 +7,7 @@ DerivedData/
 .swiftpm/
 *.xcworkspace
 !*.xcodeproj/project.xcworkspace
+
+# Web-App
+node_modules/
+dist/
