@@ -30,7 +30,7 @@ export interface BoardHandlers {
 
 /**
  * Die Karte als SVG. Nimmt Tippen und Freihandstriche (Stift oder Finger)
- * entgegen und rastet sie auf Felder ein, wie in der SwiftUI-Version:
+ * entgegen und rastet sie auf Felder ein:
  * - Tippen markiert ein Feld,
  * - Ziehen markiert alle überstrichenen Felder,
  * - nach dem Loslassen entscheidet `onSelect`, was passiert.
