@@ -82,6 +82,70 @@ export function isEmpty(grid: MapGrid, c: Coordinate): boolean {
   return isPaintable(grid, c) && cellAt(grid, c).terrain === null;
 }
 
+/**
+ * „Gefüllt“ im Sinne der Regeln: eingetragenes Gelände, Berg oder Ödland.
+ * Ruinen zählen als leer, bis darauf gezeichnet wird.
+ */
+export function isFilled(grid: MapGrid, c: Coordinate): boolean {
+  if (!contains(grid, c)) return false;
+  const cell = cellAt(grid, c);
+  return cell.terrain !== null || cell.printed === 'mountain' || cell.printed === 'wasteland';
+}
+
+/** Gefüllt oder außerhalb des Rasters: so zählt der Kartenrand bei „umgeben“. */
+export function isFilledOrEdge(grid: MapGrid, c: Coordinate): boolean {
+  return !contains(grid, c) || isFilled(grid, c);
+}
+
+/** An allen vier Seiten von gefüllten Feldern oder dem Kartenrand umgeben. */
+export function isSurrounded(grid: MapGrid, c: Coordinate): boolean {
+  return orthogonalNeighbors(c).every((n) => isFilledOrEdge(grid, n));
+}
+
+/**
+ * Zusammenhängende Gruppen („Gebiete“) einer Geländeart: orthogonal verbundene
+ * Felder. Ein einzelnes Feld ist auch ein Gebiet.
+ */
+export function clustersOf(grid: MapGrid, terrain: Terrain): Coordinate[][] {
+  const seen = new Set<string>();
+  const clusters: Coordinate[][] = [];
+  for (const start of coordinatesOf(grid, terrain)) {
+    if (seen.has(coordinateKey(start))) continue;
+    const cluster: Coordinate[] = [];
+    const queue = [start];
+    seen.add(coordinateKey(start));
+    while (queue.length > 0) {
+      const c = queue.pop()!;
+      cluster.push(c);
+      for (const n of neighbors(grid, c)) {
+        if (!seen.has(coordinateKey(n)) && cellAt(grid, n).terrain === terrain) {
+          seen.add(coordinateKey(n));
+          queue.push(n);
+        }
+      }
+    }
+    clusters.push(cluster);
+  }
+  return clusters;
+}
+
+/** Alle Nachbarfelder eines Gebiets, ohne die Felder des Gebiets selbst. */
+export function clusterNeighbors(grid: MapGrid, cluster: readonly Coordinate[]): Coordinate[] {
+  const inside = new Set(cluster.map(coordinateKey));
+  const result = new Map<string, Coordinate>();
+  for (const c of cluster) {
+    for (const n of neighbors(grid, c)) {
+      const key = coordinateKey(n);
+      if (!inside.has(key)) result.set(key, n);
+    }
+  }
+  return [...result.values()];
+}
+
+export function isMountain(grid: MapGrid, c: Coordinate): boolean {
+  return contains(grid, c) && cellAt(grid, c).printed === 'mountain';
+}
+
 // MARK: Ändern
 
 /**

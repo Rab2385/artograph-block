@@ -36,6 +36,5 @@ describe('Sentinel Wood', () => {
 
   it('Metadaten', () => {
     expect(card.category).toBe('forest');
-    expect(card.isImplemented).toBe(true);
   });
 });

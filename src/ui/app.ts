@@ -466,7 +466,6 @@ function cardMarkup(state: GameState, decree: (typeof DECREES)[number], highligh
       <div class="text">
         <span class="title">${escapeHtml(cardName(card))}</span>
         <span class="rule-text">${escapeHtml(card.ruleText)}</span>
-        ${card.isImplemented ? '' : '<span class="tag">Platzhalter – zählt vorerst 0</span>'}
       </div>
       ${icon(CATEGORY_ICONS[card.category], 'category')}
     </div>`;
@@ -507,7 +506,7 @@ function cardOptions(selected: ScoringCardId | undefined): string {
         .map(
           (card) =>
             `<option value="${card.id}"${card.id === selected ? ' selected' : ''}>` +
-            `${escapeHtml(CARD_NAMES[card.id])}${card.isImplemented ? '' : ' (Platzhalter)'}</option>`,
+            `${escapeHtml(CARD_NAMES[card.id])}</option>`,
         )
         .join('') +
       '</optgroup>',

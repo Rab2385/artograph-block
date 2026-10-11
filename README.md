@@ -69,7 +69,7 @@ src/
     terrain.ts                  Geländearten, vorgedruckte Felder, Cell
     coordinate.ts               (row, column) + Nachbarn
     mapLayout.ts                Berg-/Ruinen-/Ödland-Positionen je Blockseite
-    mapGrid.ts                  11×11 Raster, Bemalbarkeit, paint/erase
+    mapGrid.ts                  11×11 Raster, Bemalbarkeit, paint/erase, gefüllt/Gebiete
     season.ts                   Dekrete A–D, Jahreszeiten → Dekrete, Zeitlimits
     gameState.ts                kompletter Spielstand
     gameStore.ts                Speichern in localStorage
@@ -80,9 +80,7 @@ src/
       scoringCard.ts            gemeinsame Form aller Wertungskarten
       catalog.ts                Zuordnung ID → Regel-Objekt
       engine.ts                 Jahreszeitenwertung, Monster-Minuspunkte
-      cards/
-        sentinelWood.ts         ✅ 1 Punkt je Waldfeld am Rand
-        placeholder.ts          ⚠️ Platzhalter für die übrigen 15 Karten
+      cards/                    alle 16 Wertungskarten, je eine Datei, plus cards.test.ts
   ui/                           Oberfläche ohne Framework
     app.ts                      Bildschirmaufbau, Werkzeuge, Jahreszeiten, Dialoge
     board.ts                    Karte als SVG, Tippen und Freihand-Striche
@@ -108,9 +106,14 @@ docs/mockups/                   Entwürfe (HTML-Quelle und Bilder)
 | `MapGrid` | `size` × `size` Zellen; `isPaintable`, `isEmpty`, `paint`, `erase` |
 | `Decree` / `Season` | A–D; Frühling A+B, Sommer B+C, Herbst C+D, Winter D+A |
 | `DecreeAssignment` | welche Wertungskarte auf welchem Dekret liegt |
-| `ScoringCard` | `id`, `category`, `ruleText`, `isImplemented`, `score(grid)` |
+| `ScoringCard` | `id`, `category`, `ruleText`, `score(grid)` |
 | `SeasonScore` | Punkte beider Dekrete, Gold, Monster-Minuspunkte |
 | `GameState` | Raster, Dekrete, Gold, abgeschlossene Jahreszeiten |
+
+**Begriffe der Wertung:** *Gefüllt* sind Felder mit eingetragenem Gelände sowie Berge und
+Ödland; Ruinen gelten als leer, bis darauf gezeichnet wird. Ein *Gebiet* sind orthogonal
+verbundene Felder derselben Geländeart (auch ein einzelnes Feld). Bei „umgeben“ zählt der
+Kartenrand wie ein gefülltes Feld.
 
 Alles im Kern sind **unveränderliche Daten** mit reinen Funktionen. Undo heißt
 deshalb: den vorherigen `GameState` wiederherstellen. Speichern heißt: JSON schreiben.
@@ -132,9 +135,8 @@ deshalb: den vorherigen `GameState` wiederherstellen. Speichern heißt: JSON sch
 
 Siehe die [Issues](https://github.com/Rab2385/artograph-block/issues):
 
-* **15 Wertungskarten sind Platzhalter** (#1–#4): liefern 0 Punkte, in der App markiert.
-  Zum Umsetzen: Datei nach dem Muster von `sentinelWood.ts` anlegen, in `catalog.ts`
-  eintragen, Tests ergänzen.
+* **Wertungskarten:** alle 16 sind umgesetzt. Die Regeln stammen aus Regel-Nachschlagewerken
+  im Netz und sollten einmal mit den echten Karten verglichen werden.
 * **Deutsche Kartennamen und eigene Kurzregeln** (#5): in `cardIds.ts` und den Karten.
   Gespeicherte Spielstände bleiben gültig.
 * **Positionen der Blockseiten** (#6, #7): Die Vorderseite stammt aus dem Gedächtnis,

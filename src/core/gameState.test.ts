@@ -30,7 +30,7 @@ describe('GameState', () => {
     expect(currentSeason(state)).toBe('summer');
 
     state = endCurrentSeason(state);
-    expect(lastTotal(state)).toBe(1); // Sommer B+C (Platzhalter) + Gold
+    expect(lastTotal(state)).toBe(1); // Sommer B+C (kein Wasser, Acker, Dorf) + Gold
     state = { ...state, grid: paint(state.grid, [c(10, 10)], 'monster') }; // -2
     state = endCurrentSeason(state);
     expect(lastTotal(state)).toBe(1 - 2); // Herbst C+D
