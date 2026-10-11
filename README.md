@@ -57,7 +57,12 @@ und baut die App für den iOS-Simulator.
 ### Web-App (im Aufbau, siehe #14)
 
 Spiellogik in `src/core/`, Oberfläche in `src/ui/` (Karte als SVG, Kompass zur Geländewahl).
-Offline-Betrieb und Veröffentlichung auf GitHub Pages folgen.
+Jeder Push auf `main` veröffentlicht die App unter
+**https://rab2385.github.io/artograph-block/** (`.github/workflows/pages.yml`).
+
+**Auf dem iPad installieren:** Seite in Safari öffnen → Teilen → „Zum Home-Bildschirm“.
+Danach startet die App im Vollbild und funktioniert auch ohne Internet. Den Spielstand
+speichert Safari nur dauerhaft, wenn die App auf dem Home-Bildschirm liegt.
 
 ```bash
 npm install

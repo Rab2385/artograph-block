@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- App-Symbol: Kompassrose auf Pergament. Quelle für public/icons/*.png -->
+  <defs>
+    <radialGradient id="paper" cx="35%" cy="25%" r="85%">
+      <stop offset="0" stop-color="#F8F0DA"/>
+      <stop offset="1" stop-color="#E2D0A6"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#paper)"/>
+  <g transform="translate(256 256)" stroke="#3A2A1A" stroke-linejoin="round">
+    <circle r="178" fill="none" stroke-width="10"/>
+    <circle r="160" fill="none" stroke-width="4"/>
+    <g stroke-width="4">
+      <path d="M0-150L22 0 0 150-22 0z" fill="#D2BC8C" transform="rotate(45)"/>
+      <path d="M0-150L22 0 0 150-22 0z" fill="#D2BC8C" transform="rotate(-45)"/>
+      <path d="M-150 0L0-30 150 0 0 30z" fill="#E2D0A6"/>
+      <path d="M0-170L30 0H-30z" fill="#8E2A22"/>
+      <path d="M0 170L30 0H-30z" fill="#F6EDD6"/>
+    </g>
+    <circle r="22" fill="#3A2A1A"/>
+    <circle r="9" fill="#D9A93A" stroke="none"/>
+  </g>
+</svg>
