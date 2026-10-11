@@ -1,12 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { allCoordinates } from '../mapGrid';
 import { makeLayout } from '../mapLayout';
 import { DECREES, SEASON_DECREES, SEASONS } from '../season';
 import { c, emptyLayout, grid, sampleDecrees } from '../testHelpers';
 import { SCORING_CARD_IDS, SCORING_CATEGORIES } from './cardIds';
 import { cardsInCategory, SCORING_CARDS } from './catalog';
 import { isCompleteAssignment, monsterPenalty, scoreSeason, seasonTotal } from './engine';
-import { cardName } from './scoringCard';
 
 describe('Jahreszeiten → Dekrete', () => {
   it('ordnet die Dekrete zu', () => {
@@ -69,7 +67,7 @@ describe('Jahreszeitenwertung', () => {
     expect(score.decreeScores.map((d) => d.decree)).toEqual(['A', 'B']);
     expect(score.decreeScores[0]?.card).toBe('sentinelWood');
     expect(score.decreeScores[0]?.points).toBe(2);
-    expect(score.decreeScores[1]?.points).toBe(0); // Platzhalter
+    expect(score.decreeScores[1]?.points).toBe(0); // Canal Lake: kein Wasser, kein Acker
     expect(score.gold).toBe(3);
     expect(score.monsterPenalty).toBe(-2);
     expect(seasonTotal(score)).toBe(2 + 0 + 3 - 2);
@@ -92,7 +90,6 @@ describe('Jahreszeitenwertung', () => {
       id,
       category: 'spatial' as const,
       ruleText: 'fix',
-      isImplemented: true,
       score: () => 5,
     });
     expect(seasonTotal(scoreSeason('autumn', grid(), sampleDecrees, 0, fixed))).toBe(10);
@@ -104,7 +101,7 @@ describe('Jahreszeitenwertung', () => {
   });
 });
 
-describe('Katalog und Platzhalter', () => {
+describe('Katalog', () => {
   it('enthält jede Karte genau einmal', () => {
     expect(SCORING_CARDS).toHaveLength(SCORING_CARD_IDS.length);
     expect(new Set(SCORING_CARDS.map((card) => card.id))).toEqual(new Set(SCORING_CARD_IDS));
@@ -114,13 +111,6 @@ describe('Katalog und Platzhalter', () => {
     for (const category of SCORING_CATEGORIES) expect(cardsInCategory(category)).toHaveLength(4);
   });
 
-  it('Platzhalter sind markiert und liefern 0', () => {
-    const full = grid(emptyLayout, { forest: allCoordinates(grid()) });
-    for (const card of SCORING_CARDS.filter((x) => !x.isImplemented)) {
-      expect(card.score(full), cardName(card)).toBe(0);
-      expect(card.ruleText, cardName(card)).toContain('Platzhalter');
-    }
-  });
 });
 
 describe('Dekret-Zuordnung', () => {

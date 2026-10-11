@@ -13,8 +13,6 @@ export interface ScoringCard {
   readonly category: ScoringCategory;
   /** Kurzbeschreibung der Regel für die Anzeige, in eigenen Worten (#5). */
   readonly ruleText: string;
-  /** `false` = Regel noch nicht umgesetzt (Platzhalter, liefert 0 Punkte). */
-  readonly isImplemented: boolean;
   score(grid: MapGrid): number;
 }
 

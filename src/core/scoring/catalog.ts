@@ -1,30 +1,44 @@
 import type { ScoringCardId, ScoringCategory } from './cardIds';
-import { placeholderCard } from './cards/placeholder';
+import { borderlands } from './cards/borderlands';
+import { brokenRoad } from './cards/brokenRoad';
+import { canalLake } from './cards/canalLake';
+import { cauldrons } from './cards/cauldrons';
+import { goldenGranary } from './cards/goldenGranary';
+import { greatCity } from './cards/greatCity';
+import { greenbough } from './cards/greenbough';
+import { greengoldPlains } from './cards/greengoldPlains';
+import { lostBarony } from './cards/lostBarony';
+import { magesValley } from './cards/magesValley';
 import { sentinelWood } from './cards/sentinelWood';
+import { shieldgate } from './cards/shieldgate';
+import { shoresideExpanse } from './cards/shoresideExpanse';
+import { stonesideForest } from './cards/stonesideForest';
+import { treetower } from './cards/treetower';
+import { wildholds } from './cards/wildholds';
 import type { ScoringCard } from './scoringCard';
 
 /** Verzeichnis aller Wertungskarten: welches Regel-Objekt zu welcher Karte gehört. */
 export const SCORING_CARDS: readonly ScoringCard[] = [
-  // Wald (#1)
+  // Wald
   sentinelWood,
-  placeholderCard('greenbough', 'forest'),
-  placeholderCard('treetower', 'forest'),
-  placeholderCard('stonesideForest', 'forest'),
-  // Wasser & Acker (#2)
-  placeholderCard('canalLake', 'waterFarm'),
-  placeholderCard('magesValley', 'waterFarm'),
-  placeholderCard('goldenGranary', 'waterFarm'),
-  placeholderCard('shoresideExpanse', 'waterFarm'),
-  // Dorf (#3)
-  placeholderCard('wildholds', 'village'),
-  placeholderCard('greatCity', 'village'),
-  placeholderCard('greengoldPlains', 'village'),
-  placeholderCard('shieldgate', 'village'),
-  // Anordnung (#4)
-  placeholderCard('borderlands', 'spatial'),
-  placeholderCard('lostBarony', 'spatial'),
-  placeholderCard('brokenRoad', 'spatial'),
-  placeholderCard('cauldrons', 'spatial'),
+  greenbough,
+  treetower,
+  stonesideForest,
+  // Wasser & Acker
+  canalLake,
+  magesValley,
+  goldenGranary,
+  shoresideExpanse,
+  // Dorf
+  wildholds,
+  greatCity,
+  greengoldPlains,
+  shieldgate,
+  // Anordnung
+  borderlands,
+  lostBarony,
+  brokenRoad,
+  cauldrons,
 ];
 
 export function cardById(id: ScoringCardId): ScoringCard {
