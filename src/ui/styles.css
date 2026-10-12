@@ -63,13 +63,15 @@ button { touch-action: manipulation; cursor: pointer; }
   height: 100dvh;
   display: grid;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  grid-template-columns: 104px minmax(0, 1fr) minmax(300px, 380px);
-  grid-template-rows: auto auto minmax(0, 1fr);
+  /* Die Karte bekommt die ganze Höhe; Gold, Jahreszeiten und Dekrete stehen rechts. */
+  grid-template-columns: 88px minmax(0, 1fr) minmax(240px, 284px);
+  grid-template-rows: auto auto auto minmax(0, 1fr);
   grid-template-areas:
-    'tools coins head'
+    'tools board head'
+    'tools board coins'
     'tools board seasons'
     'tools board cards';
-  column-gap: 20px;
+  column-gap: 14px;
 }
 
 .toolbar { grid-area: tools; }
@@ -84,6 +86,7 @@ button { touch-action: manipulation; cursor: pointer; }
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
     grid-template-areas: 'head' 'seasons' 'coins' 'board' 'cards' 'tools';
+    column-gap: 0;
   }
 }
 
@@ -94,8 +97,8 @@ button { touch-action: manipulation; cursor: pointer; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 16px 0;
+  gap: 4px;
+  padding: 12px 0;
   background: rgba(120, 85, 40, 0.10);
   border-right: 3px double var(--ink);
 }
@@ -103,21 +106,21 @@ button { touch-action: manipulation; cursor: pointer; }
 .toolbar .rule { width: 56px; border-top: 1px solid var(--ink-soft); opacity: 0.6; margin: 4px 0; }
 
 .tool {
-  width: 84px;
-  min-height: 76px;
+  width: 76px;
+  min-height: 68px;
   border: 0;
   background: none;
   padding: 2px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  font-size: 14px;
+  gap: 3px;
+  font-size: 13px;
 }
 
 .tool .seal {
-  width: 52px;
-  height: 52px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   border: 2px solid var(--ink);
   display: flex;
@@ -126,7 +129,7 @@ button { touch-action: manipulation; cursor: pointer; }
   background: var(--paper-light);
 }
 
-.tool .seal .icon { width: 28px; height: 28px; }
+.tool .seal .icon { width: 26px; height: 26px; }
 .tool[aria-pressed='true'] .seal {
   background: radial-gradient(circle at 35% 30%, #B4473C, var(--wax) 60%, #5E1A14);
   border-color: var(--wax-dark);
@@ -138,8 +141,8 @@ button { touch-action: manipulation; cursor: pointer; }
 @media (orientation: portrait) {
   .toolbar {
     flex-direction: row;
-    gap: 14px;
-    padding: 10px 0 12px;
+    gap: 12px;
+    padding: 6px 0 8px;
     border-right: 0;
     border-top: 3px double var(--ink);
   }
@@ -151,14 +154,24 @@ button { touch-action: manipulation; cursor: pointer; }
 .coinbar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 14px 0 6px;
+  gap: 8px;
+  padding: 4px 16px 10px 0;
   flex-wrap: wrap;
 }
+/* Rechts in der Spalte: Münzen in eigener Zeile unter Gold, −, Wert, +. */
+.coins {
+  display: grid;
+  grid-template-columns: repeat(14, minmax(0, 18px));
+  gap: 2px;
+  order: 5;
+  flex-basis: 100%;
+}
+.coin { width: 100%; height: auto; aspect-ratio: 1; display: block; }
 
-.coins { display: flex; gap: 5px; flex-wrap: wrap; }
-.coin { width: 24px; height: 24px; display: block; }
+@media (orientation: portrait) {
+  .coinbar { justify-content: center; padding: 4px 24px 2px; flex-wrap: nowrap; }
+  .coins { order: 0; flex-basis: auto; gap: 4px; grid-template-columns: repeat(14, 22px); }
+}
 
 .round-button {
   width: 44px;
@@ -182,7 +195,7 @@ button { touch-action: manipulation; cursor: pointer; }
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 0 16px;
+  padding: 8px 0;
 }
 
 .board {
@@ -200,7 +213,7 @@ button { touch-action: manipulation; cursor: pointer; }
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 16px 20px 8px 0;
+  padding: 12px 16px 6px 0;
 }
 .head h1 { font-family: var(--display); font-weight: 400; font-size: 30px; margin: 0; line-height: 1; }
 .head p { margin: 4px 0 0; color: var(--ink-soft); font-size: 15px; }
@@ -226,7 +239,7 @@ button { touch-action: manipulation; cursor: pointer; }
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  padding-right: 20px;
+  padding-right: 16px;
 }
 
 .season {
@@ -240,15 +253,15 @@ button { touch-action: manipulation; cursor: pointer; }
   gap: 2px;
   text-align: left;
 }
-.season .name { font-family: var(--display); font-size: 20px; }
+.season .name { font-family: var(--display); font-size: 18px; }
 .season .meta { font-size: 13px; color: var(--ink-soft); min-height: 1.2em; }
-.season .value { font-size: 28px; font-weight: 700; line-height: 1.1; font-variant-numeric: lining-nums tabular-nums; }
+.season .value { font-size: 24px; font-weight: 700; line-height: 1.1; font-variant-numeric: lining-nums tabular-nums; }
 .season.current { border: 2.5px solid var(--wax); }
 .season.future { opacity: 0.55; }
 .season .ribbon {
   position: absolute;
-  right: -6px;
-  top: 8px;
+  right: 8px;
+  top: -9px;
   background: var(--wax);
   color: var(--paper-light);
   font-family: var(--display);
@@ -261,7 +274,7 @@ button { touch-action: manipulation; cursor: pointer; }
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 14px 20px 16px 0;
+  padding: 12px 16px 12px 0;
   overflow-y: auto;
   min-height: 0;
 }
@@ -285,7 +298,7 @@ button { touch-action: manipulation; cursor: pointer; }
 .card.active { box-shadow: inset 0 0 0 2px var(--wax); }
 .card .text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
 .card .title { font-size: 17px; font-weight: 700; }
-.card .rule-text { font-size: 14px; color: var(--ink-soft); line-height: 1.25; }
+.card .rule-text { font-size: 13px; color: var(--ink-soft); line-height: 1.25; }
 .card .category { width: 26px; height: 26px; flex-shrink: 0; }
 .card .points { font-size: 24px; font-weight: 700; min-width: 2ch; text-align: right; font-variant-numeric: lining-nums tabular-nums; }
 .tag { align-self: flex-start; font-size: 12px; color: #7A3E00; background: #F7E1B5; border-radius: 4px; padding: 1px 6px; }
@@ -515,3 +528,22 @@ fieldset.field { border: 0; margin: 0; padding: 0; }
 .hint.error { color: var(--wax); font-weight: 700; }
 
 :focus-visible { outline: 2px solid var(--wax); outline-offset: 2px; }
+
+/* ---------- Hochformat: Kopf, Jahreszeiten und Karten schlanker, damit die Karte wächst ---------- */
+@media (orientation: portrait) {
+  .head { padding: 8px 24px 4px; }
+  .head h1 { font-size: 24px; }
+  .head p { font-size: 13px; margin-top: 2px; }
+  .head .wax { width: 60px; height: 60px; }
+  .head .wax .value { font-size: 24px; }
+  .season { padding: 4px 8px; }
+  .season .name { font-size: 16px; }
+  .season .value { font-size: 20px; }
+  .card { padding: 6px 8px; gap: 2px; }
+  .card .rule-text, .card .tag { display: none; }
+  .card .title { font-size: 15px; }
+  .letter { width: 28px; height: 28px; font-size: 17px; }
+  .tool { min-height: 58px; }
+  .tool .seal { width: 40px; height: 40px; }
+  .tool .seal .icon { width: 22px; height: 22px; }
+}
