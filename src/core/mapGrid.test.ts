@@ -11,6 +11,13 @@ describe('MapGrid', () => {
     expect(allCoordinates(g).filter((x) => cellAt(g, x).printed === 'ruins')).toHaveLength(6);
   });
 
+  it('Vorderseite entspricht dem echten Block (#6)', () => {
+    // Block: Zeilen A–K, Spalten 1–11. Berge B4, C9, F6, I3, J8; Ruinen B6, C2, C10, I2, I10, J6.
+    const block = (label: string) => c(label.charCodeAt(0) - 65, Number(label.slice(1)) - 1);
+    expect(STANDARD_LAYOUT.mountains).toEqual(['B4', 'C9', 'F6', 'I3', 'J8'].map(block));
+    expect(STANDARD_LAYOUT.ruins).toEqual(['B6', 'C2', 'C10', 'I2', 'I10', 'J6'].map(block));
+  });
+
   it('Berge sind nicht bemalbar', () => {
     const g = createGrid(STANDARD_LAYOUT);
     const mountain = STANDARD_LAYOUT.mountains[0]!;

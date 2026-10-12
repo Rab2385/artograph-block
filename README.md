@@ -142,8 +142,8 @@ Siehe die [Issues](https://github.com/Rab2385/artograph-block/issues):
   im Netz und sollten einmal mit den echten Karten verglichen werden.
 * **Deutsche Kartennamen und eigene Kurzregeln** (#5): in `cardIds.ts` und den Karten.
   Gespeicherte Spielstände bleiben gültig.
-* **Positionen der Blockseiten** (#6, #7): Die Vorderseite stammt aus dem Gedächtnis,
-  die Ödland-Rückseite ist ein Platzhalter. Beides steht in `mapLayout.ts`.
+* **Rückseite des Blocks** (#7): Die Ödland-Seite ist noch ein Platzhalter (`mapLayout.ts`).
+  Die Vorderseite ist mit dem echten Block abgeglichen.
 * **Ruinen** sind wie im Original bemalbar. Mit `ruinsArePaintable: false` im Layout
   lassen sie sich sperren.
 
