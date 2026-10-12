@@ -154,14 +154,28 @@ export function isMountain(grid: MapGrid, c: Coordinate): boolean {
 // MARK: Ändern
 
 /**
- * Trägt `terrain` in alle bemalbaren Felder ein (`null` = radieren).
- * Nicht bemalbare Felder werden stillschweigend übersprungen.
+ * Monsterfelder sind bis zum Spielende festgeschrieben: Sie lassen sich weder
+ * radieren noch übermalen.
+ */
+export function isLocked(grid: MapGrid, c: Coordinate): boolean {
+  return contains(grid, c) && cellAt(grid, c).terrain === 'monster';
+}
+
+/** Kann `terrain` hier eingetragen werden? Monster nur auf leere Felder. */
+export function canPaint(grid: MapGrid, c: Coordinate, terrain: Terrain | null): boolean {
+  if (!isPaintable(grid, c) || isLocked(grid, c)) return false;
+  return terrain !== 'monster' || cellAt(grid, c).terrain === null;
+}
+
+/**
+ * Trägt `terrain` in alle Felder ein, wo das erlaubt ist (`null` = radieren).
+ * Nicht bemalbare und gesperrte Felder werden stillschweigend übersprungen.
  * Liefert dasselbe Objekt zurück, wenn sich nichts geändert hat.
  */
 export function paint(grid: MapGrid, coordinates: Iterable<Coordinate>, terrain: Terrain | null): MapGrid {
   let cells: Cell[] | null = null;
   for (const c of coordinates) {
-    if (!isPaintable(grid, c)) continue;
+    if (!canPaint(cells ? { ...grid, cells } : grid, c, terrain)) continue;
     const index = c.row * grid.size + c.column;
     const current = (cells ?? grid.cells)[index]!;
     if (current.terrain === terrain) continue;

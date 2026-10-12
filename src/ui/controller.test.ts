@@ -91,4 +91,38 @@ describe('GameController', () => {
     controller.adjustGold(1);
     expect(calls).toBe(1);
   });
+
+  it('ein bestätigtes Monster lässt sich nicht zurücknehmen', () => {
+    const { controller } = started();
+    controller.setPending([c(0, 0)]);
+    controller.paintPending('forest');
+    expect(controller.canUndo).toBe(true);
+
+    controller.setPending([c(5, 5)]);
+    controller.paintPending('monster');
+    expect(cellAt(controller.state!.grid, c(5, 5)).terrain).toBe('monster');
+    expect(controller.canUndo).toBe(false);
+
+    controller.undo();
+    controller.erase([c(5, 5)]);
+    expect(cellAt(controller.state!.grid, c(5, 5)).terrain).toBe('monster');
+  });
+
+  it('ein Monster ohne leeres Feld ändert nichts und behält Zurück', () => {
+    const { controller } = started();
+    controller.setPending([c(0, 0)]);
+    controller.paintPending('forest');
+    controller.setPending([c(0, 0)]);
+    controller.paintPending('monster');
+    expect(cellAt(controller.state!.grid, c(0, 0)).terrain).toBe('forest');
+    expect(controller.canUndo).toBe(true);
+  });
+
+  it('ein neues Spiel gibt die Monsterfelder wieder frei', () => {
+    const { controller } = started();
+    controller.setPending([c(5, 5)]);
+    controller.paintPending('monster');
+    controller.resetSheet();
+    expect(cellAt(controller.state!.grid, c(5, 5)).terrain).toBeNull();
+  });
 });

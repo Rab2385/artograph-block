@@ -126,6 +126,9 @@ deshalb: den vorherigen `GameState` wiederherstellen. Speichern heißt: JSON sch
   Geländeart füllt die ganze Form.
 * Ein Tipp neben den Kompass oder auf ✕ bricht ab.
 * Der **Radierer** ist ein eigener Modus: Tippen oder Ziehen leert die Felder.
+* **Monster** werden erst nach einer Bestätigung eingetragen und nur auf leere Felder.
+  Danach sind sie bis zum Spielende festgeschrieben: Radierer, Übermalen und „Zurück“
+  ändern sie nicht mehr. „Zurück“ geht deshalb nicht hinter ein Monster zurück.
 * **Zurück** macht die letzten Schritte rückgängig (auch Gold und Jahreszeitenwertung).
 * **Gold** wird über das ganze Spiel gesammelt; jede Jahreszeit wertet das gesamte Gold.
   Münzen von Erkundungskarten trägt man mit +/− ein. Ein eingekreister Berg (alle vier

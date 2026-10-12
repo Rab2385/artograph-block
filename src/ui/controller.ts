@@ -90,8 +90,17 @@ export class GameController {
   paintPending(terrain: Terrain): void {
     const cells = this.pending;
     this.pending = null;
-    if (cells) this.apply((s) => withGrid(s, paint(s.grid, cells, terrain)));
-    else this.notify();
+    if (!cells) {
+      this.notify();
+      return;
+    }
+    const before = this.state;
+    this.apply((s) => withGrid(s, paint(s.grid, cells, terrain)));
+    // Ein bestätigtes Monster ist wie Tinte: „Zurück“ darf nicht dahinter zurückgehen.
+    if (terrain === 'monster' && this.state !== before) {
+      this.history.clear();
+      this.notify();
+    }
   }
 
   erase(cells: readonly Coordinate[]): void {

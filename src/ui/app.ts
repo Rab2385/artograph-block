@@ -10,6 +10,8 @@ import {
   DECREES,
   isCompleteAssignment,
   isFinished,
+  canPaint,
+  isLocked,
   isPaintable,
   layoutById,
   mountainGold,
@@ -85,7 +87,8 @@ export function mountApp(root: HTMLElement, controller: GameController): void {
   let toastTimer: number | undefined;
 
   const board = new BoardView({
-    accept: (c) => controller.state !== null && isPaintable(controller.state.grid, c),
+    // Monsterfelder sind gesperrt und lassen sich weder auswählen noch radieren.
+    accept: (c) => controller.state !== null && isPaintable(controller.state.grid, c) && !isLocked(controller.state.grid, c),
     onStrokeStart: () => {
       hideToast();
       controller.cancelPending();
@@ -178,6 +181,52 @@ export function mountApp(root: HTMLElement, controller: GameController): void {
     openDialog(
       `<div class="dialog-body"><h2 class="dialog-title">${escapeHtml(title)}</h2><p>${escapeHtml(message)}</p>` +
         `<div class="dialog-actions"><button type="button" class="button" data-action="close-dialog">OK</button></div></div>`,
+      'alert',
+    );
+  }
+
+  /** Trägt das gewählte Gelände in die markierten Felder ein und zeigt den Hinweis. */
+  function paintSelection(terrain: Terrain): void {
+    const state = controller.state;
+    const pending = controller.pending ?? [];
+    const count = state ? pending.filter((c) => canPaint(state.grid, c, terrain)).length : 0;
+    const goldBefore = state ? mountainGold(state) : 0;
+    controller.paintPending(terrain);
+    const goldGained = controller.state ? mountainGold(controller.state) - goldBefore : 0;
+    if (count === 0) return;
+    const bonus = goldGained > 0 ? ` · Berg eingekreist: +${goldGained} Gold` : '';
+    // Monster lassen sich nicht zurücknehmen, also ohne „Zurück“ im Hinweis.
+    showToast(`${countText(count)} ${TERRAIN_NAMES[terrain]} eingetragen${bonus}`, terrain !== 'monster');
+  }
+
+  /**
+   * Monster werden nur nach Bestätigung eingetragen; danach sind sie bis zum
+   * Spielende festgeschrieben. Abbrechen führt zurück zum Kompass.
+   */
+  function openMonsterConfirm(): void {
+    const state = controller.state;
+    const pending = controller.pending ?? [];
+    if (!state || pending.length === 0) return;
+    const count = pending.filter((c) => canPaint(state.grid, c, 'monster')).length;
+    const skipped = pending.length - count;
+    const skippedNote =
+      skipped > 0
+        ? `<p class="hint">${countText(skipped)} ${skipped === 1 ? 'ist' : 'sind'} schon bemalt und ${skipped === 1 ? 'bleibt' : 'bleiben'} unverändert; Monster kommen nur auf leere Felder.</p>`
+        : '';
+    openDialog(
+      `<div class="dialog-body">
+        <h2 class="dialog-title">Monster eintragen?</h2>
+        ${
+          count > 0
+            ? `<p><strong>${countText(count)}</strong> Monster. Monster lassen sich bis zum Spielende
+               <strong>nicht mehr entfernen oder übermalen</strong>, auch nicht mit „Zurück“.</p>`
+            : '<p>Keines der markierten Felder ist leer. Monster kommen nur auf leere Felder.</p>'
+        }
+        ${skippedNote}
+        <div class="dialog-actions">
+          <button type="button" class="button" data-action="close-dialog">Abbrechen</button>
+          ${count > 0 ? '<button type="button" class="button primary" data-action="confirm-monster">Monster eintragen</button>' : ''}
+        </div></div>`,
       'alert',
     );
   }
@@ -331,16 +380,14 @@ export function mountApp(root: HTMLElement, controller: GameController): void {
         break;
       case 'paint': {
         const terrain = target.dataset.terrain as Terrain;
-        const count = controller.pending?.length ?? 0;
-        const goldBefore = state ? mountainGold(state) : 0;
-        controller.paintPending(terrain);
-        const goldGained = controller.state ? mountainGold(controller.state) - goldBefore : 0;
-        if (count > 0) {
-          const bonus = goldGained > 0 ? ` · Berg eingekreist: +${goldGained} Gold` : '';
-          showToast(`${countText(count)} ${TERRAIN_NAMES[terrain]} eingetragen${bonus}`);
-        }
+        if (terrain === 'monster') openMonsterConfirm();
+        else paintSelection(terrain);
         break;
       }
+      case 'confirm-monster':
+        closeDialog();
+        paintSelection('monster');
+        break;
       case 'cancel-pending':
         controller.cancelPending();
         break;
