@@ -1,4 +1,4 @@
-import { createGrid, type MapGrid } from './mapGrid';
+import { createGrid, surroundedMountains, type MapGrid } from './mapGrid';
 import { STANDARD_LAYOUT, type MapLayout } from './mapLayout';
 import { scoreSeason, seasonTotal, type DecreeAssignment, type SeasonScore } from './scoring/engine';
 import { SEASONS, type Season } from './season';
@@ -18,7 +18,11 @@ export interface GameState {
   readonly layoutId: string;
   readonly grid: MapGrid;
   readonly decrees: DecreeAssignment;
-  /** Aktuelle Anzahl gesammelter Goldmünzen (Zähler). */
+  /**
+   * Von Hand eingetragene Goldmünzen (Münzsymbole auf Erkundungskarten).
+   * Gold für eingekreiste Berge kommt dazu, wird aber aus dem Raster berechnet,
+   * siehe `totalGold`.
+   */
   readonly gold: number;
   /** Abgeschlossene Jahreszeitenwertungen in Spielreihenfolge. */
   readonly seasonScores: readonly SeasonScore[];
@@ -65,7 +69,7 @@ export function scoreFor(state: GameState, season: Season): SeasonScore | undefi
 /** Vorschau: Was brächte die laufende Jahreszeit, wenn sie jetzt endete? */
 export function currentSeasonPreview(state: GameState): SeasonScore | null {
   const season = currentSeason(state);
-  return season ? scoreSeason(season, state.grid, state.decrees, state.gold) : null;
+  return season ? scoreSeason(season, state.grid, state.decrees, totalGold(state)) : null;
 }
 
 /**
@@ -79,6 +83,17 @@ export function endCurrentSeason(state: GameState): GameState {
 
 // MARK: Gold
 
+/** Gold für eingekreiste Berge. Berechnet, damit Rückgängig es automatisch mitnimmt. */
+export function mountainGold(state: GameState): number {
+  return surroundedMountains(state.grid).length;
+}
+
+/** Alles Gold, das in der Jahreszeitenwertung zählt. */
+export function totalGold(state: GameState): number {
+  return state.gold + mountainGold(state);
+}
+
+/** Ändert nur die von Hand eingetragenen Münzen; nie unter 0. */
 export function adjustGold(state: GameState, delta: number): GameState {
   const gold = Math.max(0, state.gold + delta);
   return gold === state.gold ? state : { ...state, gold };

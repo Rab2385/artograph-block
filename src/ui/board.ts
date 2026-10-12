@@ -1,6 +1,7 @@
 import {
   cellAt,
   coord,
+  isSurrounded,
   coordinateKey,
   GridGeometry,
   StrokeCollector,
@@ -127,7 +128,15 @@ export class BoardView {
       s += `<rect x="${x + 2}" y="${y + 2}" width="${CELL - 4}" height="${CELL - 4}" fill="url(#hatch-${cell.terrain})"><title>${TERRAIN_NAMES[cell.terrain]}</title></rect>`;
       s += use(cell.terrain, x + 20, y + 20, 60, color.ink);
     }
-    if (cell.printed === 'mountain') s += use('mountain', x + 10, y + 12, 80, INK);
+    if (cell.printed === 'mountain') {
+      // Eingekreister Berg bringt Gold: goldener Ring wie im Entwurf (#8).
+      if (isSurrounded(grid, c)) {
+        s +=
+          `<circle cx="${x + CELL / 2}" cy="${y + CELL / 2}" r="${CELL * 0.46}" fill="#D9A93A" fill-opacity="0.18" stroke="#C9962B" stroke-width="5"><title>Eingekreist: 1 Gold</title></circle>` +
+          `<circle cx="${x + CELL / 2}" cy="${y + CELL / 2}" r="${CELL * 0.56}" fill="none" stroke="#C9962B" stroke-width="2" stroke-dasharray="5 6"/>`;
+      }
+      s += use('mountain', x + 10, y + 12, 80, INK);
+    }
     if (cell.printed === 'ruins') s += use('ruins', x + 4, y + 4, 36, INK);
     return s;
   }

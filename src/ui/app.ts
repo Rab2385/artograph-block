@@ -12,6 +12,7 @@ import {
   isFinished,
   isPaintable,
   layoutById,
+  mountainGold,
   nextSeason,
   scoreFor,
   SCORING_CATEGORIES,
@@ -114,7 +115,7 @@ export function mountApp(root: HTMLElement, controller: GameController): void {
       return;
     }
     renderToolbar(state);
-    coinbar.innerHTML = coinbarMarkup(state.gold);
+    coinbar.innerHTML = coinbarMarkup(state.gold, mountainGold(state));
     head.innerHTML = headMarkup(state);
     seasons.innerHTML = SEASONS.map((s) => seasonMarkup(state, s)).join('');
     cards.innerHTML = '<h2>Dekrete</h2>' + DECREES.map((d) => cardMarkup(state, d)).join('');
@@ -331,8 +332,13 @@ export function mountApp(root: HTMLElement, controller: GameController): void {
       case 'paint': {
         const terrain = target.dataset.terrain as Terrain;
         const count = controller.pending?.length ?? 0;
+        const goldBefore = state ? mountainGold(state) : 0;
         controller.paintPending(terrain);
-        if (count > 0) showToast(`${countText(count)} ${TERRAIN_NAMES[terrain]} eingetragen`);
+        const goldGained = controller.state ? mountainGold(controller.state) - goldBefore : 0;
+        if (count > 0) {
+          const bonus = goldGained > 0 ? ` · Berg eingekreist: +${goldGained} Gold` : '';
+          showToast(`${countText(count)} ${TERRAIN_NAMES[terrain]} eingetragen${bonus}`);
+        }
         break;
       }
       case 'cancel-pending':
@@ -399,24 +405,32 @@ function toolButton(action: string, iconName: IconName, label: string): string {
   return `<button type="button" class="tool" data-action="${action}"><span class="seal">${icon(iconName)}</span>${label}</button>`;
 }
 
-function coinbarMarkup(gold: number): string {
-  const slots = Math.max(COIN_SLOTS, gold);
+/**
+ * Goldleiste: erst die von Hand eingetragenen Münzen, dann die für eingekreiste
+ * Berge (mit Siegelrand). − nimmt nur von Hand eingetragene Münzen weg.
+ */
+function coinbarMarkup(manual: number, mountain: number): string {
+  const total = manual + mountain;
+  const slots = Math.max(COIN_SLOTS, total);
   let coins = '';
-  for (let i = 0; i < slots; i++) coins += coinSvg(i < gold);
+  for (let i = 0; i < slots; i++) coins += coinSvg(i < total, i >= manual && i < total);
+  const label = mountain > 0 ? `Gold: ${total}, davon ${mountain} für eingekreiste Berge` : `Gold: ${total}`;
   return `
     <span class="sc" style="font-size:17px">Gold</span>
     <div class="coins" aria-hidden="true">${coins}</div>
-    <button type="button" class="round-button" data-action="gold-minus" aria-label="Gold verringern"${gold === 0 ? ' disabled' : ''}>${icon('minus')}</button>
-    <span class="gold-value" aria-live="polite" aria-label="Gold: ${gold}">${gold}</span>
+    <button type="button" class="round-button" data-action="gold-minus" aria-label="Gold verringern"${manual === 0 ? ' disabled' : ''}>${icon('minus')}</button>
+    <span class="gold-value" aria-live="polite" aria-label="${label}">${total}</span>
     <button type="button" class="round-button" data-action="gold-plus" aria-label="Gold erhöhen">${icon('plus')}</button>`;
 }
 
-/** Münze wie auf dem Block: gefüllt in Gold oder als leerer Kreis. */
-function coinSvg(filled: boolean): string {
+/** Münze wie auf dem Block: gefüllt in Gold oder als leerer Kreis; Berg-Gold mit Siegelrand. */
+function coinSvg(filled: boolean, fromMountain = false): string {
   return filled
     ? '<svg class="coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#D9A93A" stroke="#3A2A1A" stroke-width="1.5"/>' +
         '<circle cx="12" cy="12" r="6.5" fill="none" stroke="#7A5512" stroke-width="1.3"/>' +
-        '<path d="M12 8.5v7" stroke="#7A5512" stroke-width="1.5" stroke-linecap="round"/></svg>'
+        '<path d="M12 8.5v7" stroke="#7A5512" stroke-width="1.5" stroke-linecap="round"/>' +
+        (fromMountain ? '<circle cx="12" cy="12" r="11.3" fill="none" stroke="#8E2A22" stroke-width="1.6"/>' : '') +
+        '</svg>'
     : '<svg class="coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#3A2A1A" stroke-width="1.5"/>' +
         '<circle cx="12" cy="12" r="6.5" fill="none" stroke="#3A2A1A" stroke-opacity="0.35"/></svg>';
 }

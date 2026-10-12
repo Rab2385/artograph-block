@@ -142,6 +142,11 @@ export function clusterNeighbors(grid: MapGrid, cluster: readonly Coordinate[]):
   return [...result.values()];
 }
 
+/** Berge, deren vier Nachbarn alle gefüllt sind (der Kartenrand zählt mit): je 1 Gold. */
+export function surroundedMountains(grid: MapGrid): Coordinate[] {
+  return allCoordinates(grid).filter((c) => isMountain(grid, c) && isSurrounded(grid, c));
+}
+
 export function isMountain(grid: MapGrid, c: Coordinate): boolean {
   return contains(grid, c) && cellAt(grid, c).printed === 'mountain';
 }
