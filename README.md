@@ -38,7 +38,7 @@ Entwürfe im Kartograph-Stil, Quelle in [`docs/mockups/`](docs/mockups/).
   <img src="docs/mockups/score.jpg" alt="Wertung" width="58%">
 </p>
 
-**Gold für eingekreiste Berge** soll automatisch erkannt werden (#8):
+**Gold für eingekreiste Berge** wird automatisch erkannt:
 
 ![Gold für eingekreisten Berg](docs/mockups/gold.jpg)
 
@@ -128,6 +128,9 @@ deshalb: den vorherigen `GameState` wiederherstellen. Speichern heißt: JSON sch
 * Der **Radierer** ist ein eigener Modus: Tippen oder Ziehen leert die Felder.
 * **Zurück** macht die letzten Schritte rückgängig (auch Gold und Jahreszeitenwertung).
 * **Gold** wird über das ganze Spiel gesammelt; jede Jahreszeit wertet das gesamte Gold.
+  Münzen von Erkundungskarten trägt man mit +/− ein. Ein eingekreister Berg (alle vier
+  Nachbarn gefüllt) bringt automatisch 1 Gold; er leuchtet golden, und seine Münze hat
+  einen roten Rand. Radieren oder Zurück nimmt sie wieder weg.
 * **Werten** schließt die laufende Jahreszeit ab. Die App rechnet aus dem Raster
   Dekret 1 + Dekret 2 + Gold + Monster-Minuspunkte.
 
@@ -141,7 +144,6 @@ Siehe die [Issues](https://github.com/Rab2385/artograph-block/issues):
   Gespeicherte Spielstände bleiben gültig.
 * **Positionen der Blockseiten** (#6, #7): Die Vorderseite stammt aus dem Gedächtnis,
   die Ödland-Rückseite ist ein Platzhalter. Beides steht in `mapLayout.ts`.
-* **Gold für eingekreiste Berge** automatisch zählen (#8).
 * **Ruinen** sind wie im Original bemalbar. Mit `ruinsArePaintable: false` im Layout
   lassen sie sich sperren.
 
