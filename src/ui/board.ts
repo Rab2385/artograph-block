@@ -15,8 +15,12 @@ import { hatchPatterns, TERRAIN_COLORS } from './icons';
 const SVG_NS = 'http://www.w3.org/2000/svg';
 /** Kantenlänge eines Feldes in SVG-Einheiten. */
 const CELL = 100;
-/** Rand für den doppelten Kartenrahmen. */
+/** Rand für den doppelten Kartenrahmen; links und unten mehr Platz für die Beschriftung. */
 const PAD = 14;
+const LABEL = 46;
+/** Gesamtbreite und -höhe der Karte in SVG-Einheiten (quadratisch). */
+const totalFor = (size: number) => size * CELL + 2 * PAD + LABEL;
+const LABEL_COLOR = '#A87A22';
 const INK = '#3A2A1A';
 const WAX = '#8E2A22';
 
@@ -78,7 +82,8 @@ export class BoardView {
       this.geometry = new GridGeometry(grid.size, grid.size * CELL);
     }
     const side = this.size * CELL;
-    this.element.setAttribute('viewBox', `${-PAD} ${-PAD} ${side + 2 * PAD} ${side + 2 * PAD}`);
+    const total = totalFor(this.size);
+    this.element.setAttribute('viewBox', `${-PAD - LABEL} ${-PAD} ${total} ${total}`);
     this.element.setAttribute('aria-label', `Karte, ${this.size} mal ${this.size} Felder`);
 
     let html = `<rect width="${side}" height="${side}" fill="#F6EDD6" fill-opacity="0.75"/>`;
@@ -93,6 +98,7 @@ export class BoardView {
       `<path d="${lines}" stroke="${INK}" stroke-opacity="0.45" stroke-width="1.5" fill="none"/>` +
       `<rect x="-3" y="-3" width="${side + 6}" height="${side + 6}" fill="none" stroke="${INK}" stroke-width="4"/>` +
       `<rect x="-11" y="-11" width="${side + 22}" height="${side + 22}" fill="none" stroke="${INK}" stroke-width="1.5"/>`;
+    html += this.labelsMarkup(side);
     this.cellsLayer.innerHTML = html;
 
     this.selectionColor = selectionColor;
@@ -102,13 +108,15 @@ export class BoardView {
   /** Bildschirm-Rechteck um die Felder, z. B. um den Kompass daneben zu setzen. */
   screenRectOf(cells: readonly Coordinate[]): DOMRect {
     const box = this.element.getBoundingClientRect();
-    const scale = box.width / (this.size * CELL + 2 * PAD);
+    const scale = box.width / totalFor(this.size);
     const rows = cells.map((c) => c.row);
     const columns = cells.map((c) => c.column);
-    const left = box.left + (PAD + Math.min(...columns) * CELL) * scale;
-    const top = box.top + (PAD + Math.min(...rows) * CELL) * scale;
-    const right = box.left + (PAD + (Math.max(...columns) + 1) * CELL) * scale;
-    const bottom = box.top + (PAD + (Math.max(...rows) + 1) * CELL) * scale;
+    const originX = box.left + (PAD + LABEL) * scale;
+    const originY = box.top + PAD * scale;
+    const left = originX + Math.min(...columns) * CELL * scale;
+    const top = originY + Math.min(...rows) * CELL * scale;
+    const right = originX + (Math.max(...columns) + 1) * CELL * scale;
+    const bottom = originY + (Math.max(...rows) + 1) * CELL * scale;
     return new DOMRect(left, top, right - left, bottom - top);
   }
 
@@ -141,6 +149,16 @@ export class BoardView {
     return s;
   }
 
+  /** Beschriftung wie auf dem Block: Zeilen A–K links, Spalten 1–11 unten. */
+  private labelsMarkup(side: number): string {
+    let s = `<g aria-hidden="true" fill="${LABEL_COLOR}" font-family="Alegreya, Georgia, serif" font-size="34" font-weight="700" text-anchor="middle">`;
+    for (let i = 0; i < this.size; i++) {
+      s += `<text x="${-PAD - LABEL / 2}" y="${i * CELL + CELL / 2 + 12}">${String.fromCharCode(65 + i)}</text>`;
+      s += `<text x="${i * CELL + CELL / 2}" y="${side + PAD + LABEL / 2 + 12}">${i + 1}</text>`;
+    }
+    return s + '</g>';
+  }
+
   private showSelection(cells: readonly Coordinate[]): void {
     this.shownSelection = cells;
     if (cells.length === 0) {
@@ -170,8 +188,8 @@ export class BoardView {
 
   private toBoard(e: PointerEvent): Point {
     const box = this.element.getBoundingClientRect();
-    const scale = (this.size * CELL + 2 * PAD) / box.width;
-    return { x: (e.clientX - box.left) * scale - PAD, y: (e.clientY - box.top) * scale - PAD };
+    const scale = totalFor(this.size) / box.width;
+    return { x: (e.clientX - box.left) * scale - PAD - LABEL, y: (e.clientY - box.top) * scale - PAD };
   }
 
   private pointerDown(e: PointerEvent): void {
