@@ -33,8 +33,10 @@ export function printedFeatureAt(layout: MapLayout, c: Coordinate): PrintedFeatu
 }
 
 /**
- * Vorderseite des Blocks (Standardkarte).
- * TODO (#6): Positionen mit dem echten Block abgleichen.
+ * Vorderseite des Blocks (Standardkarte, Seite „A“).
+ * Mit einem Foto des echten Blocks abgeglichen (#6). Auf dem Block heißen die
+ * Zeilen A–K und die Spalten 1–11: Berge B4, C9, F6, I3, J8; Ruinen B6, C2,
+ * C10, I2, I10, J6.
  */
 export const STANDARD_LAYOUT = makeLayout({
   id: 'standard',
