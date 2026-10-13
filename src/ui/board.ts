@@ -21,6 +21,7 @@ const LABEL = 46;
 /** Gesamtbreite und -höhe der Karte in SVG-Einheiten (quadratisch). */
 const totalFor = (size: number) => size * CELL + 2 * PAD + LABEL;
 const LABEL_COLOR = '#A87A22';
+const RUIN_COLOR = '#9A6E1C';
 const INK = '#3A2A1A';
 const WAX = '#8E2A22';
 
@@ -128,8 +129,8 @@ export class BoardView {
     const y = c.row * CELL;
     let s = '';
     if (cell.printed === 'wasteland') {
-      s += `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" fill="#B9A98A" fill-opacity="0.55"/>`;
-      s += use('wasteland', x + 25, y + 25, 50, '#6B5338');
+      s += `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" fill="#8A857C" fill-opacity="0.6"><title>Schlucht</title></rect>`;
+      s += use('wasteland', x + 15, y + 15, 70, '#4E4A44');
     }
     if (cell.terrain) {
       const color = TERRAIN_COLORS[cell.terrain];
@@ -145,7 +146,18 @@ export class BoardView {
       }
       s += use('mountain', x + 10, y + 12, 80, INK);
     }
-    if (cell.printed === 'ruins') s += use('ruins', x + 4, y + 4, 36, INK);
+    if (cell.printed === 'ruins') {
+      s += '<g><title>Ruine</title>';
+      if (cell.terrain) {
+        // Bemalt: klein in der Ecke auf hellem Grund, damit es auf jeder Schraffur lesbar bleibt.
+        s += `<rect x="${x + 4}" y="${y + 4}" width="38" height="38" rx="6" fill="#F6EDD6" fill-opacity="0.92" stroke="${INK}" stroke-opacity="0.55" stroke-width="1.5"/>`;
+        s += use('ruins', x + 7, y + 7, 32, RUIN_COLOR);
+      } else {
+        // Leer: groß und mittig in Goldbraun, wie auf dem Block.
+        s += use('ruins', x + 20, y + 20, 60, RUIN_COLOR);
+      }
+      s += '</g>';
+    }
     return s;
   }
 
