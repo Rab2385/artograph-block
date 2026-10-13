@@ -1,10 +1,12 @@
 import './ui/styles.css';
-import { GameStore } from './core';
+import { CustomMapStore, GameStore } from './core';
 import { mountApp } from './ui/app';
 import { GameController } from './ui/controller';
 
 const root = document.querySelector<HTMLElement>('#app');
-if (root) mountApp(root, new GameController(new GameStore(window.localStorage)));
+if (root) {
+  mountApp(root, new GameController(new GameStore(window.localStorage)), new CustomMapStore(window.localStorage));
+}
 
 // Offline-Betrieb: Der Service Worker wird nur im fertigen Build erzeugt (siehe build/serviceWorker.ts).
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {

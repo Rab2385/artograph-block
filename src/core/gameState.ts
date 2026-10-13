@@ -16,6 +16,8 @@ export interface GameState {
   readonly id: string;
   readonly playerName: string;
   readonly layoutId: string;
+  /** Name der Karte beim Start; bleibt sichtbar, auch wenn eine eigene Karte später gelöscht wird. */
+  readonly layoutName?: string;
   readonly grid: MapGrid;
   readonly decrees: DecreeAssignment;
   /**
@@ -40,6 +42,7 @@ export function createGame(options: {
     id: options.id ?? crypto.randomUUID(),
     playerName: options.playerName ?? '',
     layoutId: layout.id,
+    layoutName: layout.name,
     grid: createGrid(layout),
     decrees: options.decrees,
     gold: 0,

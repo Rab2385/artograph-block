@@ -42,6 +42,14 @@ Entwürfe im Kartograph-Stil, Quelle in [`docs/mockups/`](docs/mockups/).
 
 ![Gold für eingekreisten Berg](docs/mockups/gold.jpg)
 
+## Eigene Karten
+
+Neben Vorder- und Rückseite des Blocks lassen sich eigene Karten zeichnen:
+„Neues Spiel“ → „Eigene Karten …“ → „Neue Karte“. Berge, Ruinen und Schlucht
+werden auf das 11 × 11 Raster getippt oder gezogen. Gespeicherte Karten sind fest;
+sie lassen sich nur noch teilen (Link oder QR-Code) oder löschen. Wer den Link
+öffnet oder den QR-Code scannt, kann die Karte auf seinem iPad übernehmen.
+
 ## Loslegen
 
 Voraussetzung: Node.js 22.
@@ -73,6 +81,7 @@ src/
     season.ts                   Dekrete A–D, Jahreszeiten → Dekrete, Zeitlimits
     gameState.ts                kompletter Spielstand
     gameStore.ts                Speichern in localStorage
+    customMaps.ts               eigene Karten: Editor-Logik, Link-Code, Zufallskarte, Speicher
     undoHistory.ts              mehrstufiges Undo über Schnappschüsse
     gridGeometry.ts             Punkt ↔ Feld, Einrasten von Strichen
     scoring/
@@ -86,6 +95,7 @@ src/
     board.ts                    Karte als SVG, Tippen und Freihand-Striche
     compass.ts                  Kompass zur Geländewahl und seine Platzierung
     controller.ts               Spielzustand, Undo, Autospeichern
+    maps.ts                     eigene Karten: Verwaltung, Editor, Teilen (QR-Code), Übernehmen
     icons.ts                    Tintensymbole und Buntstift-Schraffur
     styles.css                  Gestaltung, Quer- und Hochformat
     fonts/                      IM Fell English SC und Alegreya (SIL OFL)
