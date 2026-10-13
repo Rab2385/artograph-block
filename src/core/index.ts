@@ -12,3 +12,4 @@ export * from './scoring/cardIds';
 export * from './scoring/catalog';
 export * from './scoring/engine';
 export * from './scoring/scoringCard';
+export * from './customMaps';

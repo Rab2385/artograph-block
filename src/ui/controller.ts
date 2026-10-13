@@ -4,8 +4,8 @@ import {
   endCurrentSeason,
   erase,
   layoutById,
+  layoutFromGrid,
   paint,
-  STANDARD_LAYOUT,
   UndoHistory,
   type Coordinate,
   type DecreeAssignment,
@@ -68,10 +68,16 @@ export class GameController {
   resetSheet(): void {
     if (!this.state) return;
     this.startNewGame({
-      layout: layoutById(this.state.layoutId) ?? STANDARD_LAYOUT,
+      layout: this.layout(),
       decrees: this.state.decrees,
       playerName: this.state.playerName,
     });
+  }
+
+  /** Die Karte des laufenden Spiels; eigene Karten werden aus dem Raster nachgebaut (#27). */
+  private layout(): MapLayout {
+    const state = this.state!;
+    return layoutById(state.layoutId) ?? layoutFromGrid(state.grid, { id: state.layoutId, name: state.layoutName ?? '' });
   }
 
   // MARK: Eintragen

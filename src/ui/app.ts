@@ -25,7 +25,9 @@ import {
   TERRAIN_NAMES,
   totalScore,
   type Coordinate,
+  type CustomMapStore,
   type DecreeAssignment,
+  type MapLayout,
   type GameState,
   type ScoringCardId,
   type ScoringCategory,
@@ -37,6 +39,7 @@ import { BoardView } from './board';
 import { compassMarkup, placeCompass } from './compass';
 import type { GameController } from './controller';
 import { escapeHtml, icon, iconSprite, type IconName } from './icons';
+import { codeFromHash, MapScreens, miniMap } from './maps';
 
 const DEFAULT_DECREES: DecreeAssignment = { A: 'sentinelWood', B: 'canalLake', C: 'wildholds', D: 'borderlands' };
 const COIN_SLOTS = 14;
@@ -51,7 +54,7 @@ const CATEGORY_ICONS: Record<ScoringCategory, IconName> = {
 };
 
 /** Baut den Spielbildschirm auf und hält ihn mit dem Controller in Sync. */
-export function mountApp(root: HTMLElement, controller: GameController): void {
+export function mountApp(root: HTMLElement, controller: GameController, maps: CustomMapStore): void {
   document.body.insertAdjacentHTML('afterbegin', iconSprite());
   root.innerHTML = `
     <div class="app">
@@ -83,6 +86,27 @@ export function mountApp(root: HTMLElement, controller: GameController): void {
   const toast = q<HTMLElement>('.toast');
   const dialog = q<HTMLDialogElement>('.dialog');
   let toastTimer: number | undefined;
+  /** Eingaben im Dialog „Neues Spiel“, solange die Kartenverwaltung offen ist. */
+  let setupPrevious: GameState | null = null;
+  let setupDraft: SetupDraft | null = null;
+  const findLayout = (id: string) => layoutById(id) ?? maps.get(id);
+
+  const mapScreens = new MapScreens(
+    {
+      dialog,
+      openDialog,
+      backToSetup: (selected) => {
+        if (selected && setupDraft) setupDraft.layoutId = selected.id;
+        openSetup(setupPrevious);
+      },
+      done: () => {
+        closeDialog();
+        render();
+      },
+      showToast: (text) => showToast(text, false),
+    },
+    maps,
+  );
 
   const board = new BoardView({
     accept: (c) => controller.state !== null && isPaintable(controller.state.grid, c),
@@ -116,7 +140,7 @@ export function mountApp(root: HTMLElement, controller: GameController): void {
     }
     renderToolbar(state);
     coinbar.innerHTML = coinbarMarkup(state.gold, mountainGold(state));
-    head.innerHTML = headMarkup(state);
+    head.innerHTML = headMarkup(state, findLayout(state.layoutId));
     seasons.innerHTML = SEASONS.map((s) => seasonMarkup(state, s)).join('');
     cards.innerHTML = '<h2>Dekrete</h2>' + DECREES.map((d) => cardMarkup(state, d)).join('');
     const pending = controller.pending ?? [];
@@ -230,19 +254,29 @@ export function mountApp(root: HTMLElement, controller: GameController): void {
   }
 
   function openSetup(previous: GameState | null): void {
-    const decrees = previous?.decrees ?? DEFAULT_DECREES;
-    const layoutId = previous?.layoutId ?? STANDARD_LAYOUT.id;
+    const draft = setupDraft;
+    setupPrevious = previous;
+    setupDraft = null;
+    const decrees = draft?.decrees ?? previous?.decrees ?? DEFAULT_DECREES;
+    const layouts: readonly MapLayout[] = [...ALL_LAYOUTS, ...maps.list()];
+    const wanted = draft?.layoutId ?? previous?.layoutId;
+    const layoutId = layouts.some((l) => l.id === wanted) ? wanted : STANDARD_LAYOUT.id;
+    const player = draft?.player ?? previous?.playerName ?? '';
     openDialog(
       `<form class="dialog-body setup" method="dialog">
         <h2 class="dialog-title">Neues Spiel</h2>
         <label class="field"><span>Spieler</span>
-          <input class="text-input" name="player" type="text" autocomplete="off" placeholder="Name (optional)" value="${escapeHtml(previous?.playerName ?? '')}">
+          <input class="text-input" name="player" type="text" autocomplete="off" placeholder="Name (optional)" value="${escapeHtml(player)}">
         </label>
         <fieldset class="field"><legend>Karte</legend>
-          <div class="segmented">${ALL_LAYOUTS.map(
-            (l) =>
-              `<label><input type="radio" name="layout" value="${l.id}"${l.id === layoutId ? ' checked' : ''}>${escapeHtml(l.name)}</label>`,
-          ).join('')}</div>
+          <div class="segmented layouts">${layouts
+            .map(
+              (l) =>
+                `<label><input type="radio" name="layout" value="${l.id}"${l.id === layoutId ? ' checked' : ''}>` +
+                `${miniMap(l)}<span>${escapeHtml(l.name)}</span></label>`,
+            )
+            .join('')}</div>
+          <button type="button" class="button" data-action="manage-maps">Eigene Karten …</button>
         </fieldset>
         <fieldset class="field"><legend>Wertungskarten</legend>
           ${DECREES.map(
@@ -303,7 +337,18 @@ export function mountApp(root: HTMLElement, controller: GameController): void {
     const layoutId = (form.elements.namedItem('layout') as RadioNodeList).value;
     const playerName = (form.elements.namedItem('player') as HTMLInputElement).value.trim();
     closeDialog();
-    controller.startNewGame({ layout: layoutById(layoutId) ?? STANDARD_LAYOUT, decrees, playerName });
+    controller.startNewGame({ layout: findLayout(layoutId) ?? STANDARD_LAYOUT, decrees, playerName });
+  }
+
+  /** Merkt sich die Eingaben, damit sie nach der Kartenverwaltung wieder da sind. */
+  function rememberSetup(): void {
+    const form = setupForm();
+    if (!form) return;
+    setupDraft = {
+      player: (form.elements.namedItem('player') as HTMLInputElement).value,
+      layoutId: (form.elements.namedItem('layout') as RadioNodeList).value,
+      decrees: readSetup(form),
+    };
   }
 
   // MARK: Eingaben
@@ -368,6 +413,10 @@ export function mountApp(root: HTMLElement, controller: GameController): void {
       case 'shuffle':
         shuffleSetup();
         break;
+      case 'manage-maps':
+        rememberSetup();
+        mapScreens.openManager();
+        break;
       case 'start-game': {
         event.preventDefault();
         const form = setupForm();
@@ -396,7 +445,23 @@ export function mountApp(root: HTMLElement, controller: GameController): void {
   window.addEventListener('resize', render);
 
   controller.subscribe(render);
+
+  // Über einen geteilten Link geöffnet: Karte anbieten, Link danach aus der Adresse nehmen.
+  function importFromHash(): void {
+    const code = codeFromHash(window.location.hash);
+    if (code === null) return;
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+    mapScreens.openImport(code);
+  }
+  window.addEventListener('hashchange', importFromHash);
+  importFromHash();
   render();
+}
+
+interface SetupDraft {
+  player: string;
+  layoutId: string;
+  decrees: DecreeAssignment;
 }
 
 // MARK: Bausteine
@@ -435,8 +500,8 @@ function coinSvg(filled: boolean, fromMountain = false): string {
         '<circle cx="12" cy="12" r="6.5" fill="none" stroke="#3A2A1A" stroke-opacity="0.35"/></svg>';
 }
 
-function headMarkup(state: GameState): string {
-  const layout = layoutById(state.layoutId)?.name ?? '';
+function headMarkup(state: GameState, layoutInfo: MapLayout | undefined): string {
+  const layout = layoutInfo?.name ?? state.layoutName ?? 'Eigene Karte';
   const player = state.playerName ? ` · ${escapeHtml(state.playerName)}` : '';
   return `
     <div><h1>Kartograph</h1><p>${escapeHtml(layout)}${player}</p></div>

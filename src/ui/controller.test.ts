@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cellAt, currentSeason, GameStore } from '../core';
+import { cellAt, currentSeason, GameStore, makeLayout } from '../core';
 import { c, emptyLayout, sampleDecrees } from '../core/testHelpers';
 import { GameController } from './controller';
 
@@ -80,6 +80,21 @@ describe('GameController', () => {
     expect(controller.state!.gold).toBe(0);
     expect(controller.state!.decrees).toEqual(sampleDecrees);
     expect(controller.canUndo).toBe(false);
+  });
+
+  it('neues Blatt klappt auch mit einer eigenen Karte, die nicht mehr gespeichert ist', () => {
+    const controller = new GameController(new GameStore(memoryStorage()));
+    const layout = makeLayout({ id: 'custom-weg', name: 'Weg', mountains: [c(2, 2)], ruins: [c(4, 4)], wasteland: [c(6, 6)] });
+    controller.startNewGame({ layout, decrees: sampleDecrees, playerName: '' });
+    controller.setPending([c(4, 4)]);
+    controller.paintPending('forest');
+    controller.resetSheet();
+    const grid = controller.state!.grid;
+    expect(controller.state!.layoutId).toBe('custom-weg');
+    expect(controller.state!.layoutName).toBe('Weg');
+    expect(cellAt(grid, c(2, 2)).printed).toBe('mountain');
+    expect(cellAt(grid, c(4, 4))).toEqual({ printed: 'ruins', terrain: null });
+    expect(cellAt(grid, c(6, 6)).printed).toBe('wasteland');
   });
 
   it('benachrichtigt Beobachter', () => {

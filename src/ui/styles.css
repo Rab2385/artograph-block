@@ -527,6 +527,36 @@ fieldset.field { border: 0; margin: 0; padding: 0; }
 .hint { font-size: 14px; color: var(--ink-soft); margin: 0; }
 .hint.error { color: var(--wax); font-weight: 700; }
 
+/* Eigene Karten (#27) */
+.segmented.layouts label { flex-direction: column; gap: 4px; min-width: 120px; }
+.segmented.layouts .mini-map { width: 56px; height: 56px; }
+.mini-map { width: 64px; height: 64px; flex: none; display: block; }
+.mini-map.large { width: 180px; height: 180px; margin: 0 auto; }
+.map-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+.map-row { display: flex; align-items: center; gap: 12px; padding: 8px; border: 1.5px solid var(--ink); border-radius: 8px; background: var(--paper-light); }
+.map-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.map-name { font-family: var(--display); font-size: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.maps { width: min(620px, calc(100vw - 32px)); }
+@media (max-width: 560px) { .map-row { flex-wrap: wrap; } }
+dialog.wide { width: min(980px, calc(100vw - 32px)); max-width: none; }
+.editor { gap: 10px; }
+.editor-head { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.editor-head .text-input { flex: 1; min-width: 200px; }
+.editor-main { display: flex; gap: 12px; min-height: 0; }
+.editor-tools { display: flex; flex-direction: column; gap: 4px; }
+.editor-board { flex: 1; container-type: size; height: min(calc(100dvh - 300px), 720px); display: flex; justify-content: center; }
+.editor .spacer { flex: 1; }
+.editor .button { display: inline-flex; align-items: center; gap: 6px; }
+.editor .button .icon { width: 18px; height: 18px; }
+.qr { width: min(260px, 70vw); margin: 0 auto; background: #fff; border: 1.5px solid var(--ink); border-radius: 6px; }
+.qr svg { display: block; width: 100%; height: auto; }
+.share-link { font-size: 13px; }
+@media (orientation: portrait) {
+  .editor-main { flex-direction: column; }
+  .editor-tools { flex-direction: row; justify-content: center; }
+  .editor-board { flex: none; height: min(calc(100dvh - 400px), calc(100vw - 84px)); }
+}
+
 :focus-visible { outline: 2px solid var(--wax); outline-offset: 2px; }
 
 /* ---------- Hochformat: Kopf, Jahreszeiten und Karten schlanker, damit die Karte wächst ---------- */
