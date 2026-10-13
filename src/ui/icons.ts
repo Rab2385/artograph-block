@@ -19,7 +19,7 @@ const SYMBOLS = {
     '<path d="M1.5 20.5L9 6.5l3.5 6 3-4.5 7 12.5z" fill="#A88B64"/><path d="M9 6.5l-2.2 4.1 1.6-.8 1 1.2 1.2-1.4z" fill="#F6EDD6"/><path d="M5 17l2-3M13 17l1.5-2.5M17 17l1-1.8"/>',
   ruins:
     '<path d="M4.5 21V11a7.5 7.5 0 0 1 15 0v10h-3.2V11.5a4.3 4.3 0 0 0-8.6 0V21z" fill="#F6EDD6"/><path d="M12 3.5l-.8 3 1.3 1.5-.6 2"/><path d="M3 21h18"/>',
-  wasteland: '<path d="M4 4l16 16M20 4L4 20"/><path d="M2 12h3M19 12h3M12 2v3M12 19v3"/>',
+  wasteland: '<path d="M7 2l2 5-3 4 3 4-2 7"/><path d="M15 2l-1 6 3 3-3 5 2 6"/><path d="M9 7l2 1M6 11l-2 1M14 8l-2 1M17 11l2 0"/>',
   quill: '<path d="M20 3C13 4 7 10 5 19"/><path d="M20 3c-1 6-5 10-11 11"/><path d="M5 19l-2 2"/>',
   eraser:
     '<path d="M8 20h12"/><path d="M4.5 15.5l9-9a2 2 0 0 1 2.8 0l3.2 3.2a2 2 0 0 1 0 2.8L12 20H8.5z"/><path d="M9 11l5 5"/>',

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { allCoordinates, cellAt, coordinatesOf, createGrid, erase, isEmpty, isPaintable, paint } from './mapGrid';
-import { makeLayout, STANDARD_LAYOUT } from './mapLayout';
+import { makeLayout, STANDARD_LAYOUT, WASTELAND_LAYOUT } from './mapLayout';
 import { c, emptyLayout, grid } from './testHelpers';
 
 describe('MapGrid', () => {
@@ -16,6 +16,13 @@ describe('MapGrid', () => {
     const block = (label: string) => c(label.charCodeAt(0) - 65, Number(label.slice(1)) - 1);
     expect(STANDARD_LAYOUT.mountains).toEqual(['B4', 'C9', 'F6', 'I3', 'J8'].map(block));
     expect(STANDARD_LAYOUT.ruins).toEqual(['B6', 'C2', 'C10', 'I2', 'I10', 'J6'].map(block));
+  });
+
+  it('Rückseite entspricht dem echten Block (#7)', () => {
+    const block = (label: string) => c(label.charCodeAt(0) - 65, Number(label.slice(1)) - 1);
+    expect(WASTELAND_LAYOUT.mountains).toEqual(['B9', 'C4', 'H6', 'I10', 'J3'].map(block));
+    expect(WASTELAND_LAYOUT.ruins).toEqual(['B7', 'C3', 'E7', 'G2', 'H9', 'J4'].map(block));
+    expect(WASTELAND_LAYOUT.wasteland).toEqual(['D6', 'E5', 'E6', 'F5', 'F6', 'F7', 'G6'].map(block));
   });
 
   it('Berge sind nicht bemalbar', () => {

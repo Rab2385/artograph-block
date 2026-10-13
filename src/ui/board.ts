@@ -128,8 +128,8 @@ export class BoardView {
     const y = c.row * CELL;
     let s = '';
     if (cell.printed === 'wasteland') {
-      s += `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" fill="#B9A98A" fill-opacity="0.55"/>`;
-      s += use('wasteland', x + 25, y + 25, 50, '#6B5338');
+      s += `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" fill="#8A857C" fill-opacity="0.6"><title>Schlucht</title></rect>`;
+      s += use('wasteland', x + 15, y + 15, 70, '#4E4A44');
     }
     if (cell.terrain) {
       const color = TERRAIN_COLORS[cell.terrain];
